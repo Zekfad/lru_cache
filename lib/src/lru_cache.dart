@@ -2,19 +2,18 @@ import 'dart:collection';
 
 import 'package:meta/meta.dart';
 
-import 'cache.dart';
 import 'lru_cache_entry.dart';
 
 
-/// Least recently used [Cache] implementation.
+/// Least recently used cache implementation.
 /// Elements are stored in [Map] and expected to have a constant (worst-case
 /// linear for bad [Object.hashCode]) access time.
 /// Usage metadata are tracked via [LinkedList].
-base class LruCache<K, V extends Object> with MapBase<K, V> implements Cache<K, V> {
+base class LruCache<K, V extends Object> with MapBase<K, V> {
   /// Create new LRU cache with [maxCapacity].
   LruCache(this.maxCapacity) : assert(maxCapacity > 0, 'Max capacity must be positive');
 
-  @override
+  /// Maximum capacity of this cache.
   final int maxCapacity;
 
   /// Map used for quick access to cache entries.

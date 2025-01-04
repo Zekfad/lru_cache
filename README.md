@@ -1,7 +1,7 @@
 # LRU Cache
 
-[![pub package](https://img.shields.io/pub/v/lru_cache.svg)](https://pub.dev/packages/lru_cache)
-[![package publisher](https://img.shields.io/pub/publisher/lru_cache.svg)](https://pub.dev/packages/lru_cache/publisher)
+[![pub package](https://img.shields.io/pub/v/lru.svg)](https://pub.dev/packages/lru)
+[![package publisher](https://img.shields.io/pub/publisher/lru.svg)](https://pub.dev/packages/lru/publisher)
 
 Cache based on Least Recently Used evict strategy.
 
@@ -19,7 +19,7 @@ Create cache, add values, when space is exhausted;
 
 ```dart
 // no weak cache, because String is not supported by Expando
-final cache = new Cache<int, String>(2);
+final cache = new LruCache<int, String>(2);
 
 cache[0] = '0';
 cache[1] = '1';
@@ -47,14 +47,14 @@ void main() {
 
   cache[0] = Key('0');
   cache[1] = Key('1');
-  cache[2] = Key('2'); // key 0 is moved to weak cache here
+  cache[2] = Key('2'); // key 0 is evicted from LRU and moved to weak cache
 
   // try to touch, if key 0 is not garbage collected yet
   // key 1 is moved to weak cache, and key 0 is restored
   cache[0];
 
   print(cache[0]); // likely 0
-  print(cache[1]); // 1
+  print(cache[1]); // likely 1
   print(cache[2]); // 2
 }
 ```

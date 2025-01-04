@@ -1,12 +1,13 @@
-name: lru_cache
+name: lru
 description: LRU (Least recently used) cache with additional weak map layer. 
 version: 1.0.0
 homepage: https://github.com/Zekfad/lru_cache
 repository: https://github.com/Zekfad/lru_cache
 issue_tracker: https://github.com/Zekfad/lru_cache/issues
-# documentation: https://pub.dev/documentation/lru_cache/latest/
+# documentation: https://pub.dev/documentation/lru/latest/
 topics:
   - cache
+  - lru
 
 environment:
   sdk: ^3.0.0
