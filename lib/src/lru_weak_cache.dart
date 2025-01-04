@@ -49,6 +49,7 @@ final class LruWeakCache<K, V extends Object> extends LruCache<K, V> {
       );
       return this[key! as K] = value;
     }
+    return null;
   }
 
   /// Usage of [containsKey] is __discouraged__.

@@ -53,6 +53,7 @@ base class LruCache<K, V extends Object> with MapBase<K, V> {
       list.addFirst(entry..unlink());
       return entry.value;
     }
+    return null;
   }
 
   @override

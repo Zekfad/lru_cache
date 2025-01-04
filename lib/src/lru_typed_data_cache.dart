@@ -41,6 +41,7 @@ final class LruTypedDataCache<K, V extends TypedData> extends LruCache<K, V> {
       _lengthInBytes -= value.lengthInBytes;
       return value;
     }
+    return null;
   }
 
   @override
