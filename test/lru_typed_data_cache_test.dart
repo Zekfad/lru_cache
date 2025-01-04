@@ -5,25 +5,16 @@ import 'package:test/test.dart';
 
 void main() {
   group('LruTypedDataCache', () {
-    test('should updata lengthInBytes', () {
-      final cache = LruTypedDataCache<int, Uint8List>(capacity: 100, byteCapacity: 1024 * 3);
+    test('should track lengthInBytes', () {
+      final cache = LruTypedDataCache<int, Uint8List>(capacity: 100, capacityInBytes: 1024 * 3);
       cache[1] = Uint8List(1024)..[0] = 1;
       cache[2] = Uint8List(1024)..[0] = 2;
 
       expect(cache.lengthInBytes, equals(1024 * 2));
     });
 
-    test('should updata lengthInBytes after evict', () {
-      final cache = LruTypedDataCache<int, Uint8List>(capacity: 100, byteCapacity: 1024 * 2);
-      cache[1] = Uint8List(1024)..[0] = 1;
-      cache[2] = Uint8List(1024)..[0] = 2;
-      cache[3] = Uint8List(512)..[0] = 3;
-
-      expect(cache.lengthInBytes, equals(1024 + 512));
-    });
-
     test('should evict entries on bytes overflow', () {
-      final cache = LruTypedDataCache<int, Uint8List>(capacity: 100, byteCapacity: 1024 * 3);
+      final cache = LruTypedDataCache<int, Uint8List>(capacity: 100, capacityInBytes: 1024 * 3);
       cache[1] = Uint8List(1024)..[0] = 1;
       cache[2] = Uint8List(1024)..[0] = 2;
       cache[3] = Uint8List(1024)..[0] = 3;
@@ -31,30 +22,46 @@ void main() {
 
       expect(cache[1], isNull);
       expect(cache[2], isNull);
-      expect(cache[3], isNotNull);
-      expect(cache[3]![0], equals(3));
-      expect(cache[4], isNotNull);
-      expect(cache[4]![0], equals(4));
+      final third = cache[3];
+      expect(third, isNotNull);
+      expect(third![0], equals(3));
+      final fourth = cache[4];
+      expect(fourth, isNotNull);
+      expect(fourth![0], equals(4));
     });
 
-    test('should add entries with size of capacity', () {
-      final cache = LruTypedDataCache<int, Uint8List>(capacity: 100, byteCapacity: 1024);
+    test('should update lengthInBytes after entry eviction', () {
+      final cache = LruTypedDataCache<int, Uint8List>(capacity: 100, capacityInBytes: 1024 * 2);
       cache[1] = Uint8List(1024)..[0] = 1;
+      cache[2] = Uint8List(1024)..[0] = 2;
+      cache[3] = Uint8List(512)..[0] = 3;
 
-      expect(cache[1], isNotNull);
-      expect(cache[1]![0], equals(1));
+      expect(cache.lengthInBytes, equals(1024 + 512));
     });
 
-    test('should skip entries with size bigger that capacity', () {
-      final cache = LruTypedDataCache<int, Uint8List>(capacity: 100, byteCapacity: 2048);
+    test('should not add entries that are larger than capacity in bytes', () {
+      final cache = LruTypedDataCache<int, Uint8List>(capacity: 100, capacityInBytes: 2048);
       cache[1] = Uint8List(1024)..[0] = 1;
-      cache[2] = Uint8List(3048)..[0] = 2;
+      cache[2] = Uint8List(3072)..[0] = 2;
 
       expect(cache.lengthInBytes, equals(1024));
 
       expect(cache[2], isNull);
-      expect(cache[1], isNotNull);
-      expect(cache[1]![0], equals(1));
+      final first = cache[1];
+      expect(first, isNotNull);
+      expect(first![0], equals(1));
+    });
+
+    test('should add entries that are same size as capacity in bytes', () {
+      final cache = LruTypedDataCache<int, Uint8List>(capacity: 100, capacityInBytes: 1024);
+      cache[1] = Uint8List(1024)..[0] = 1;
+
+      expect(cache.lengthInBytes, equals(1024));
+      expect(cache.lengthInBytes, equals(cache.capacityInBytes));
+
+      final first = cache[1];
+      expect(first, isNotNull);
+      expect(first![0], equals(1));
     });
   });
 }
