@@ -16,11 +16,11 @@ import 'lru_cache_entry.dart';
 /// but you cannot distinguish wether element was in LRU or in [WeakCache].
 /// This detail makes it unsuitable for further extension, hence class is final.
 final class LruWeakCache<K, V extends Object> extends LruCache<K, V> {
-  /// Create new LRU cache with [maxCapacity] that have additional
+  /// Create new LRU cache with [capacity] that have additional
   /// [WeakCache] layer.
   /// Does not work on numbers, strings, booleans, records, `null`, `dart:ffi`
   /// pointers, `dart:ffi` structs, or `dart:ffi` unions.
-  LruWeakCache(super.maxCapacity) : assert(
+  LruWeakCache(super.capacity) : assert(
     expandoCompatible<V>(),
     'Weak cache cannot hold a string, number, boolean, record, null, Pointer, '
     'Struct or Union'

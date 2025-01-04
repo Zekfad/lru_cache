@@ -10,11 +10,11 @@ import 'lru_cache_entry.dart';
 /// linear for bad [Object.hashCode]) access time.
 /// Usage metadata are tracked via [LinkedList].
 base class LruCache<K, V extends Object> with MapBase<K, V> {
-  /// Create new LRU cache with [maxCapacity].
-  LruCache(this.maxCapacity) : assert(maxCapacity > 0, 'Max capacity must be positive');
+  /// Create new LRU cache with [capacity].
+  LruCache(this.capacity) : assert(capacity > 0, 'Max capacity must be positive');
 
   /// Maximum capacity of this cache.
-  final int maxCapacity;
+  final int capacity;
 
   /// Map used for quick access to cache entries.
   @protected
@@ -26,8 +26,8 @@ base class LruCache<K, V extends Object> with MapBase<K, V> {
 
   /// Moves entry to top of linked [list].
   /// If [entry] is already first one this is noop.
-  /// If after [entry] movement there more entries than [maxCapacity]
-  /// old entries are removed until there are less than [maxCapacity] entries.
+  /// If after [entry] movement there more entries than [capacity]
+  /// old entries are removed until there are less than [capacity] entries.
   /// Its is assumed that [entry] is linked to this instance [list].
   /// Subclasses should not pass unrelated to [list] entries.
   @protected
@@ -37,7 +37,7 @@ base class LruCache<K, V extends Object> with MapBase<K, V> {
     if (entry.list != null)
       entry.unlink();
     list.addFirst(entry);
-    if (list.length > maxCapacity)
+    if (list.length > capacity)
       evictListEntry(list.last);
   }
 
