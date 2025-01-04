@@ -5,31 +5,45 @@ import 'lru_cache.dart';
 import 'lru_cache_entry.dart';
 
 
+/// [LruCache] with additional [WeakCache] that holds recently removed entries
+/// until they garbage collected. If such entry is accessed it is returned to
+/// main cache.
+/// Does not work on numbers, strings, booleans, records, `null`, `dart:ffi`
+/// pointers, `dart:ffi` structs, or `dart:ffi` unions.
 base class LruWeakCache<K, V extends Object> extends LruCache<K, V> {
+  /// Create new LRU cache with [maxCapacity] that have additional
+  /// [WeakCache] layer.
+  /// Does not work on numbers, strings, booleans, records, `null`, `dart:ffi`
+  /// pointers, `dart:ffi` structs, or `dart:ffi` unions.
   LruWeakCache(super.maxCapacity) : assert(
     expandoCompatible<V>(),
     'Weak cache cannot hold a string, number, boolean, record, null, Pointer, '
     'Struct or Union'
   );
 
-  final weakCache = WeakCache<K, V>();
+  /// Internal weak cache that holds recently removed entries.
+  final _weakCache = WeakCache<K, V>();
 
   @override
-  (LruCacheEntry<K>, V)? evictListEntry(LruCacheEntry<K> entry) {
+  LruCacheEntry<K, V>? evictListEntry(LruCacheEntry<K, V> entry) {
     final evictedEntry = super.evictListEntry(entry);
-    if (evictedEntry case (LruCacheEntry(:final index), final value))
-      weakCache[index] = value;
+    if (evictedEntry != null)
+      _weakCache[evictedEntry.key] = evictedEntry.value;
     return evictedEntry;
   }
 
   @override
   V? operator [](Object? key) {
-    if (cache[key] case (final entry, final value)?) {
-      list.addFirst(entry..unlink());
+    if (super[key] case final value?)
       return value;
-    }
-    if (weakCache[key] case final value?)
+    if (_weakCache[key] case final value?) {
+      assert(
+        key != null && key is K,
+        'Impossible state: weak Cache contains key '
+        'that is null or not subtype of K',
+      );
       return this[key! as K] = value;
+    }
   }
 
   /// Usage of [containsKey] is __discouraged__.
@@ -43,16 +57,16 @@ base class LruWeakCache<K, V extends Object> extends LruCache<K, V> {
   /// that.
   @override
   bool containsKey(Object? key) =>
-    super.containsKey(key) || weakCache.containsKey(key);
+    super.containsKey(key) || _weakCache.containsKey(key);
 
   @override
   bool containsValue(Object? value) =>
-    super.containsValue(value) || weakCache.containsValue(value);
+    super.containsValue(value) || _weakCache.containsValue(value);
 
   @override
   V? remove(Object? key) {
     if (super.remove(key) case final value?)
       return value;
-    return weakCache.remove(key);
+    return _weakCache.remove(key);
   }
 }
