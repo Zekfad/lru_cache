@@ -10,7 +10,12 @@ import 'lru_cache_entry.dart';
 /// main cache.
 /// Does not work on numbers, strings, booleans, records, `null`, `dart:ffi`
 /// pointers, `dart:ffi` structs, or `dart:ffi` unions.
-base class LruWeakCache<K, V extends Object> extends LruCache<K, V> {
+/// 
+/// Note: [remove] method may return value from [WeakCache] that is no longer in
+/// LRU, this allows you to peek to removed value before it's garbage collected
+/// but you cannot distinguish wether element was in LRU or in [WeakCache].
+/// This detail makes it unsuitable for further extension, hence class is final.
+final class LruWeakCache<K, V extends Object> extends LruCache<K, V> {
   /// Create new LRU cache with [maxCapacity] that have additional
   /// [WeakCache] layer.
   /// Does not work on numbers, strings, booleans, records, `null`, `dart:ffi`
