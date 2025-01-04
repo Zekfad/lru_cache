@@ -11,6 +11,7 @@ until they garbage collected).
 ## Features
 
 * Supports full `Map` interface.
+* Store `TypedData` and evict entries by bytes capacity via `LruTypedDataCache`.
 * Expando compatible objects can be optionally cached via `LruWeakCache`.
 
 ## Usage
@@ -32,9 +33,24 @@ print(cache[1]); // 1
 print(cache[2]); // 2
 ```
 
+Example with bytes capacity for `TypedData`.
+
+```dart
+// use capacityInBytes as additional eviction strategy
+final cache = LruTypedDataCache<int, Uint8List>(capacity: 100, capacityInBytes: 2);
+cache[0] = Uint8List(1)..[0] = 0;
+cache[1] = Uint8List(1)..[0] = 1;
+cache[2] = Uint8List(1)..[0] = 2;
+
+print(cache[0]); // null
+print(cache[1]); // [1]
+print(cache[2]); // [2]
+```
+
 Example with Weak Cache support:
 
 ```dart
+/// Helper class to demonstrate LruWeakCache
 class Key {
   const Key(this.key);
   final String key;
