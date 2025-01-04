@@ -8,6 +8,9 @@ Cache based on Least Recently Used evict strategy.
 Supports caching more than capacity via Week references (such values are cached
 until they garbage collected).
 
+Supports additional eviction strategy for `TypedData` for limiting maximum
+capacity in bytes. Useful for caching buffers such as raw images.
+
 ## Features
 
 * Supports full `Map` interface.
