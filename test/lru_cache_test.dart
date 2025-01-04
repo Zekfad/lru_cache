@@ -1,6 +1,7 @@
 import 'package:lru/lru.dart';
 import 'package:test/test.dart';
 
+
 bool get isDebugMode {
   var isDebug = false;
   assert(isDebug = true, 'always true in debug');
