@@ -24,7 +24,9 @@ final class LruTypedDataCache<K, V extends TypedData> extends LruCache<K, V> {
   LruTypedDataCache({
     required int capacity,
     required this.capacityInBytes,
-  }) : super(capacity);
+  }) :
+    assert(capacityInBytes >= 0, 'Capacity in bytes must not be negative'),
+    super(capacity);
 
   /// Maximum possible total length in bytes for this cache.
   final int capacityInBytes;
@@ -40,7 +42,7 @@ final class LruTypedDataCache<K, V extends TypedData> extends LruCache<K, V> {
   void touchListEntry(LruCacheEntry<K, V> entry) {
     super.touchListEntry(entry);
 
-    while (_lengthInBytes > capacityInBytes)
+    while (list.isNotEmpty && _lengthInBytes > capacityInBytes)
       evictListEntry(list.last);
   }
 
