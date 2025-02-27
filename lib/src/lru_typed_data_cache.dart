@@ -1,10 +1,26 @@
 import 'dart:typed_data';
 
+import 'package:meta/meta.dart';
+
 import 'lru_cache.dart';
 import 'lru_cache_entry.dart';
 
 
+/// Least recently used cache for storing typed data elements.
+/// 
+/// {@macro lru_cache_docs}
+/// 
+/// {@template lru_typed_data_cache_docs}
+/// Additionally this implementation ensures that total size of all stored typed
+/// data elements ate not greater than provided [capacityInBytes].
+/// {@endtemplate}
 final class LruTypedDataCache<K, V extends TypedData> extends LruCache<K, V> {
+  /// Create new typed data LRU cache with provided elements count [capacity]
+  /// and [capacityInBytes].
+  /// 
+  /// {@macro lru_cache_docs}
+  /// 
+  /// {@macro lru_typed_data_cache_docs}
   LruTypedDataCache({
     required int capacity,
     required this.capacityInBytes,
@@ -20,6 +36,7 @@ final class LruTypedDataCache<K, V extends TypedData> extends LruCache<K, V> {
   int _lengthInBytes = 0;
 
   @override
+  @protected
   void touchListEntry(LruCacheEntry<K, V> entry) {
     super.touchListEntry(entry);
 
@@ -28,6 +45,7 @@ final class LruTypedDataCache<K, V extends TypedData> extends LruCache<K, V> {
   }
 
   @override
+  @protected
   LruCacheEntry<K, V>? evictListEntry(LruCacheEntry<K, V> entry) {
     final evictedEntry = super.evictListEntry(entry);
     if (evictedEntry != null)
@@ -51,7 +69,7 @@ final class LruTypedDataCache<K, V extends TypedData> extends LruCache<K, V> {
       if (len > capacityInBytes)
         return;
       // clear is faster than removing all linked list entries individually
-      // because removing single entry you need to relink adjacent entries
+      // because removing single entry requires to relink adjacent entries
       clear();
     }
 

@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'package:weak_cache/expando_compatible.dart';
 import 'package:weak_cache/weak_cache.dart';
 
@@ -6,20 +7,25 @@ import 'lru_cache_entry.dart';
 
 
 /// [LruCache] with additional [WeakCache] that holds recently removed entries
-/// until they garbage collected. If such entry is accessed it is returned to
-/// main cache.
+/// until they are garbage collected. If such entry is accessed before being
+/// deleted it is will be moved back to main cache.
+/// 
+/// {@template lru_weak_cache_docs}
 /// Does not work on numbers, strings, booleans, records, `null`, `dart:ffi`
 /// pointers, `dart:ffi` structs, or `dart:ffi` unions.
 /// 
 /// Note: [remove] method may return value from [WeakCache] that is no longer in
-/// LRU, this allows you to peek to removed value before it's garbage collected
-/// but you cannot distinguish wether element was in LRU or in [WeakCache].
+/// main cache, this allows to peek removed value before it's garbage collected,
+/// but this doesn't allow to distinguish whether element came from main or weak
+/// cache.
+/// {@endtemplate}
+/// 
 /// This detail makes it unsuitable for further extension, hence class is final.
 final class LruWeakCache<K, V extends Object> extends LruCache<K, V> {
-  /// Create new LRU cache with [capacity] that have additional
-  /// [WeakCache] layer.
-  /// Does not work on numbers, strings, booleans, records, `null`, `dart:ffi`
-  /// pointers, `dart:ffi` structs, or `dart:ffi` unions.
+  /// Create new LRU cache with provided elements count [capacity] with hidden
+  /// weak cache layer.
+  /// 
+  /// {@macro lru_weak_cache_docs}
   LruWeakCache(super.capacity) : assert(
     expandoCompatible<V>(),
     'Weak cache cannot hold a string, number, boolean, record, null, Pointer, '
@@ -30,6 +36,7 @@ final class LruWeakCache<K, V extends Object> extends LruCache<K, V> {
   final _weakCache = WeakCache<K, V>();
 
   @override
+  @protected
   LruCacheEntry<K, V>? evictListEntry(LruCacheEntry<K, V> entry) {
     final evictedEntry = super.evictListEntry(entry);
     if (evictedEntry != null)

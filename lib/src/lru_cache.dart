@@ -5,13 +5,18 @@ import 'package:meta/meta.dart';
 import 'lru_cache_entry.dart';
 
 
-/// Least recently used cache implementation.
+/// Cache implementation based on least recently used eviction strategy.
+/// 
+/// {@template lru_cache_docs}
 /// Elements are stored in [Map] and expected to have a constant (worst-case
 /// linear for bad [Object.hashCode]) access time.
 /// Usage metadata are tracked via [LinkedList].
+/// {@endtemplate}
 base class LruCache<K, V extends Object> with MapBase<K, V> {
   /// Create new LRU cache with [capacity].
-  LruCache(this.capacity) : assert(capacity > 0, 'Max capacity must be positive');
+  /// 
+  /// {@macro lru_cache_docs}
+  LruCache(this.capacity) : assert(capacity >= 0, 'Capacity must not be negative');
 
   /// Maximum capacity of this cache.
   final int capacity;
@@ -41,6 +46,7 @@ base class LruCache<K, V extends Object> with MapBase<K, V> {
       evictListEntry(list.last);
   }
 
+  /// Removes [entry] from linked [list] and [cache] map.
   @protected
   LruCacheEntry<K, V>? evictListEntry(LruCacheEntry<K, V> entry) =>
     cache.remove(entry.key)?..unlink();
