@@ -3,6 +3,13 @@ import 'dart:typed_data';
 import 'package:lru/src/lru_typed_data_cache.dart';
 import 'package:test/test.dart';
 
+
+bool get isDebugMode {
+  var isDebug = false;
+  assert(isDebug = true, 'always true in debug');
+  return isDebug;
+}
+
 void main() {
   group('LruTypedDataCache', () {
     test('should track lengthInBytes', () {
@@ -62,6 +69,34 @@ void main() {
       final first = cache[1];
       expect(first, isNotNull);
       expect(first![0], equals(1));
+    });
+
+    test('should not allow negative capacity in debug', skip: !isDebugMode, () {
+      expect(
+        () => LruTypedDataCache<int, Uint8List>(capacity: -1, capacityInBytes: 1024),
+        throwsA(isA<AssertionError>()),
+      );
+    });
+
+    test('should allow zero capacity', () {
+      expect(
+        LruTypedDataCache<int, Uint8List>(capacity: 0, capacityInBytes: 1024),
+        isA<LruTypedDataCache<int, Uint8List>>(),
+      );
+    });
+
+    test('should not allow negative bytes capacity in debug', skip: !isDebugMode, () {
+      expect(
+        () => LruTypedDataCache<int, Uint8List>(capacity: 1, capacityInBytes: -1024),
+        throwsA(isA<AssertionError>()),
+      );
+    });
+
+    test('should allow zero bytes capacity capacity', () {
+      expect(
+        LruTypedDataCache<int, Uint8List>(capacity: 1, capacityInBytes: 0),
+        isA<LruTypedDataCache<int, Uint8List>>(),
+      );
     });
   });
 }

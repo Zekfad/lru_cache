@@ -88,12 +88,12 @@ void main() {
       expect(cache[2], isNull);
     });
 
-    test('should not allow negative size', skip: !isDebugMode, () {
+    test('should not allow negative capacity in debug', skip: !isDebugMode, () {
       expect(() => LruCache<int, String>(-1), throwsA(isA<AssertionError>()));
     });
 
-    test('should not allow 0 size', skip: !isDebugMode, () {
-      expect(() => LruCache<int, String>(0), throwsA(isA<AssertionError>()));
+    test('should allow zero capacity', () {
+      expect(LruCache<int, String>(0), isA<LruCache<int, String>>());
     });
   });
 }
