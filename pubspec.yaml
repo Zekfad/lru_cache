@@ -9,7 +9,6 @@ issue_tracker: https://github.com/Zekfad/lru_cache/issues
 topics:
   - cache
   - lru
-  - data
   - data-structures
 
 environment:
