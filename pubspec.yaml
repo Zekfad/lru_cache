@@ -1,6 +1,6 @@
 name: lru
-description: LRU (Least recently used) cache with additional weak map layer. 
-version: 1.0.1
+description: Cache based on least recently used eviction strategy
+  with additional typed data support and weak cache layer. 
 homepage: https://github.com/Zekfad/lru_cache
 repository: https://github.com/Zekfad/lru_cache
 issue_tracker: https://github.com/Zekfad/lru_cache/issues
@@ -8,6 +8,8 @@ issue_tracker: https://github.com/Zekfad/lru_cache/issues
 topics:
   - cache
   - lru
+  - data
+  - data-structures
 
 environment:
   sdk: ^3.0.0
