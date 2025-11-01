@@ -4,9 +4,8 @@ import 'package:meta/meta.dart';
 
 import 'lru_cache_entry.dart';
 
-
 /// Cache implementation based on least recently used eviction strategy.
-/// 
+///
 /// {@template lru_cache_docs}
 /// Elements are stored in [Map] and expected to have a constant (worst-case
 /// linear for bad [Object.hashCode]) access time.
@@ -14,9 +13,10 @@ import 'lru_cache_entry.dart';
 /// {@endtemplate}
 base class LruCache<K, V extends Object> with MapBase<K, V> {
   /// Create new LRU cache with [capacity].
-  /// 
+  ///
   /// {@macro lru_cache_docs}
-  LruCache(this.capacity) : assert(capacity >= 0, 'Capacity must not be negative');
+  LruCache(this.capacity)
+      : assert(capacity >= 0, 'Capacity must not be negative');
 
   /// Maximum capacity of this cache.
   final int capacity;
@@ -37,19 +37,16 @@ base class LruCache<K, V extends Object> with MapBase<K, V> {
   /// Subclasses should not pass unrelated to [list] entries.
   @protected
   void touchListEntry(LruCacheEntry<K, V> entry) {
-    if (entry == list.firstOrNull)
-      return;
-    if (entry.list != null)
-      entry.unlink();
+    if (entry == list.firstOrNull) return;
+    if (entry.list != null) entry.unlink();
     list.addFirst(entry);
-    if (list.length > capacity)
-      evictListEntry(list.last);
+    if (list.length > capacity) evictListEntry(list.last);
   }
 
   /// Removes [entry] from linked [list] and [cache] map.
   @protected
   LruCacheEntry<K, V>? evictListEntry(LruCacheEntry<K, V> entry) =>
-    cache.remove(entry.key)?..unlink();
+      cache.remove(entry.key)?..unlink();
 
   // MapBase required methods
 
@@ -64,13 +61,15 @@ base class LruCache<K, V extends Object> with MapBase<K, V> {
 
   @override
   void operator []=(K key, V value) {
+    if (cache.containsKey(key)) {
+      remove(key);
+    }
     final entry = cache[key] = LruCacheEntry(key, value);
     touchListEntry(entry);
   }
 
   @override
-  V? remove(Object? key) =>
-    (cache.remove(key)?..unlink())?.value;
+  V? remove(Object? key) => (cache.remove(key)?..unlink())?.value;
 
   @override
   void clear() {
@@ -80,15 +79,13 @@ base class LruCache<K, V extends Object> with MapBase<K, V> {
 
   // MapBase performance overrides and fixes that ensures no LRU updates on
   // contains checks.
- 
+
   @override
   bool containsKey(Object? key) => cache.containsKey(key);
 
   @override
   bool containsValue(Object? value) {
-    for (final entry in cache.values)
-      if (entry.value == value)
-        return true;
+    for (final entry in cache.values) if (entry.value == value) return true;
     return false;
   }
 
