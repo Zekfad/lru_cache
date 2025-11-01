@@ -1,7 +1,6 @@
 import 'package:lru/lru.dart';
 import 'package:test/test.dart';
 
-
 bool get isDebugMode {
   var isDebug = false;
   assert(isDebug = true, 'always true in debug');
@@ -38,6 +37,37 @@ void main() {
       expect(cache[1], equals('uno'));
     });
 
+    test('should update value of existing key when cache is full', () {
+      final cache = LruCache<int, String>(2);
+      cache[1] = 'one';
+      cache[2] = 'two';
+      cache[1] = 'uno';
+
+      expect(cache[1], equals('uno'));
+      expect(cache[2], equals('two'));
+    });
+
+    test('should not evict any entries when updating', () {
+      final cache = LruCache<int, String>(2);
+      cache[1] = 'one';
+      expect(cache.length, equals(1));
+      cache[1] = 'uno';
+      expect(cache.length, equals(1));
+      cache[2] = 'two';
+      expect(cache.length, equals(2));
+      cache[2] = 'dos';
+      expect(cache.length, equals(2));
+    });
+
+    test('should evict when updating only if the cache is full', () {
+      const capacity = 3;
+      final cache = LruCache<String, int>(capacity);
+      for (var i = 0; i < capacity + 1; i++) {
+        cache['key'] = i;
+        expect(cache.length, equals(1));
+      }
+    });
+
     test('should not evict recently used item', () {
       final cache = LruCache<int, String>(2);
       cache[1] = 'one';
@@ -50,7 +80,7 @@ void main() {
       expect(cache[3], equals('three'));
     });
 
-    test('should support manual key removal', () async {
+    test('should support manual key removal', () {
       final cache = LruCache<int, String>(2);
       cache[1] = 'one';
       cache[2] = 'two';
@@ -60,7 +90,7 @@ void main() {
       expect(cache[2], isNull);
     });
 
-    test('should return null for non-existent key', () async {
+    test('should return null for non-existent key', () {
       final cache = LruCache<int, String>(2);
       cache[1] = 'one';
       cache[2] = 'two';
@@ -70,14 +100,14 @@ void main() {
       expect(cache[3], isNull);
     });
 
-    test('should return correct size', () async {
+    test('should return correct size', () {
       final cache = LruCache<int, String>(2);
       cache[1] = 'one';
 
       expect(cache.length, equals(1));
     });
 
-    test('should be able to clear all items', () async {
+    test('should be able to clear all items', () {
       final cache = LruCache<int, String>(2);
       cache[1] = 'one';
       cache[2] = 'one';
