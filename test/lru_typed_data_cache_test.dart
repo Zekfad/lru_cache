@@ -10,6 +10,12 @@ bool get isDebugMode {
   return isDebug;
 }
 
+void expectLength<K, V extends TypedData>(LruTypedDataCache<K, V> cache, dynamic matcher) {
+  expect(cache.length, matcher);
+  expect(cache.cache.length, matcher);
+  expect(cache.list.length, matcher);
+}
+
 void main() {
   group('LruTypedDataCache', () {
     test('should track lengthInBytes', () {
@@ -97,6 +103,40 @@ void main() {
         LruTypedDataCache<int, Uint8List>(capacity: 1, capacityInBytes: 0),
         isA<LruTypedDataCache<int, Uint8List>>(),
       );
+    });
+
+    test('should return correct size', () {
+      // this test checks that list and map is in sync (same size)
+      // during multiple add and update operations
+      final cache = LruTypedDataCache<int, Uint8List>(capacity: 2, capacityInBytes: 1024);
+      final one = Uint8List.fromList([1]);
+      final two = Uint8List.fromList([2]);
+      final three = Uint8List.fromList([3]);
+      final ten = Uint8List.fromList([10]);
+      final twelve = Uint8List.fromList([20]);
+
+      expectLength(cache, equals(0));
+      expect(cache.lengthInBytes, equals(0));
+      cache[1] = one;
+      expectLength(cache, equals(1));
+      expect(cache.lengthInBytes, equals(1));
+      cache[2] = two;
+      expectLength(cache, equals(2));
+      expect(cache.lengthInBytes, equals(2));
+      cache[3] = three;
+      expectLength(cache, equals(2));
+      expect(cache.lengthInBytes, equals(2));
+      cache[1] = ten;
+      expectLength(cache, equals(2));
+      expect(cache.lengthInBytes, equals(2));
+      cache[2] = twelve;
+      expectLength(cache, equals(2));
+      expect(cache.lengthInBytes, equals(2));
+      // special case: we must ensure that list doesn't grow if we replace
+      // object with the same value
+      cache[2] = twelve;
+      expectLength(cache, equals(2));
+      expect(cache.lengthInBytes, equals(2));
     });
   });
 }
