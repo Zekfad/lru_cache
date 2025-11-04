@@ -42,16 +42,18 @@ final class LruTypedDataCache<K, V extends TypedData> extends LruCache<K, V> {
   void touchListEntry(LruCacheEntry<K, V> entry) {
     super.touchListEntry(entry);
 
-    while (list.isNotEmpty && _lengthInBytes > capacityInBytes)
+    while (list.isNotEmpty && _lengthInBytes > capacityInBytes) {
       evictListEntry(list.last);
+    }
   }
 
   @override
   @protected
   LruCacheEntry<K, V>? evictListEntry(LruCacheEntry<K, V> entry) {
     final evictedEntry = super.evictListEntry(entry);
-    if (evictedEntry != null)
+    if (evictedEntry != null) {
       _lengthInBytes -= evictedEntry.value.lengthInBytes;
+    }
     return evictedEntry;
   }
 
@@ -68,8 +70,9 @@ final class LruTypedDataCache<K, V extends TypedData> extends LruCache<K, V> {
   void operator []=(K key, V value) {
     final len = value.lengthInBytes;
     if (len >= capacityInBytes) {
-      if (len > capacityInBytes)
+      if (len > capacityInBytes) {
         return;
+      }
       // clear is faster than removing all linked list entries individually
       // because removing single entry requires to relink adjacent entries
       clear();

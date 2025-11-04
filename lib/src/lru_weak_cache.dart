@@ -39,15 +39,17 @@ final class LruWeakCache<K, V extends Object> extends LruCache<K, V> {
   @protected
   LruCacheEntry<K, V>? evictListEntry(LruCacheEntry<K, V> entry) {
     final evictedEntry = super.evictListEntry(entry);
-    if (evictedEntry != null)
+    if (evictedEntry != null) {
       _weakCache[evictedEntry.key] = evictedEntry.value;
+    }
     return evictedEntry;
   }
 
   @override
   V? operator [](Object? key) {
-    if (super[key] case final value?)
+    if (super[key] case final value?) {
       return value;
+    }
     if (_weakCache[key] case final value?) {
       assert(
         key != null && key is K,
@@ -78,8 +80,9 @@ final class LruWeakCache<K, V extends Object> extends LruCache<K, V> {
 
   @override
   V? remove(Object? key) {
-    if (super.remove(key) case final value?)
+    if (super.remove(key) case final value?) {
       return value;
+    }
     return _weakCache.remove(key);
   }
 }

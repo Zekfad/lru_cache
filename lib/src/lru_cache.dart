@@ -38,13 +38,16 @@ base class LruCache<K, V extends Object> with MapBase<K, V> {
   /// Subclasses should not pass unrelated to [list] entries.
   @protected
   void touchListEntry(LruCacheEntry<K, V> entry) {
-    if (entry == list.firstOrNull)
+    if (entry == list.firstOrNull) {
       return;
-    if (entry.list != null)
+    }
+    if (entry.list != null) {
       entry.unlink();
+    }
     list.addFirst(entry);
-    if (list.length > capacity)
+    if (list.length > capacity) {
       evictListEntry(list.last);
+    }
   }
 
   /// Removes [entry] from linked [list] and [cache] map.
@@ -99,9 +102,11 @@ base class LruCache<K, V extends Object> with MapBase<K, V> {
 
   @override
   bool containsValue(Object? value) {
-    for (final entry in cache.values)
-      if (entry.value == value)
+    for (final entry in cache.values) {
+      if (entry.value == value) {
         return true;
+      }
+    }
     return false;
   }
 

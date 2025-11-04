@@ -20,4 +20,4 @@ dependencies:
 
 dev_dependencies:
   test: ^1.25.14
-  zekfad_lints: ^2.2.0
+  zekfad_lints: ^2.3.0
