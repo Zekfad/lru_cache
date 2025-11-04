@@ -78,7 +78,12 @@ final class LruTypedDataCache<K, V extends TypedData> extends LruCache<K, V> {
       clear();
     }
 
-    _lengthInBytes += len;
+    if (cache[key] case final entry when null == entry || !identical(entry.value, value)) {
+      // when adding new element we should increase stored bytes
+      _lengthInBytes += len;
+    }
+    // but if element is already present, we're just moving it to the top of
+    // the list, so no change should be made
     super[key] = value;
   }
 
