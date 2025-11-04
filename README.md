@@ -3,24 +3,27 @@
 [![pub package](https://img.shields.io/pub/v/lru.svg)](https://pub.dev/packages/lru)
 [![package publisher](https://img.shields.io/pub/publisher/lru.svg)](https://pub.dev/packages/lru/publisher)
 
-Cache based on Least Recently Used eviction strategy.
+Cache based on the Least Recently Used eviction strategy.
 
-Optionally supports caching above normal capacity via Week references
-(such values are cached until they are garbage collected normally).
+Contains implementation for `TypedData` elements with capacity in bytes, that
+can be used for caching buffers such as raw images.
 
-Addition implementation for `TypedData` with capacity in bytes.
-That can be used for caching buffers such as raw images.
+Additionally contains implementation that support caching above normal capacity
+by utilizing Week references (evicted entries will be cached until they are
+garbage collected normally).
 
 ## Features
 
-* Supports full `Map` interface.
-* Store `TypedData` and evict entries on bytes capacity overflow via
+* Supports full `Map` interface with efficient `length`.
+* Supports storing `TypedData`s and evicting them on bytes capacity overflow via
   `LruTypedDataCache`.
-* Expando compatible objects can be optionally cached via `LruWeakCache`.
+* `Expando` compatible objects can be cached via `LruWeakCache` to allow
+  retrieval even after eviction (if they are not GC'd).
 
 ## Usage
 
-Create cache, add values, when capacity is reached old elements will be removed;
+Create cache and add values. When capacity is reached old elements will be
+removed;
 
 ```dart
 // Cannot use weak cache, because String is not supported by Expando
@@ -63,7 +66,7 @@ garbage collection. Elements that are normally would be removed from LRU cache
 are temporarily stored in weak cache that doesn't create strong references to
 stored objects.
 
-Following is example of Weak Cache support:
+Here is the example of Weak Cache usage:
 
 ```dart
 /// Helper class to demonstrate LruWeakCache
