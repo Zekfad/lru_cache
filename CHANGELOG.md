@@ -1,3 +1,11 @@
+## 1.0.3
+
+- Ensure that linked list and map of `LruCache` stays in sync when updating
+  keys (thanks to @miguel-montes).
+- Prevent `LruTypedDataCache` increasing `lengthInBytes` when replacing element
+  with the same one.
+- Formatting and docs update.
+
 ## 1.0.2
 
 - Prevent infinite loop when `LruTypedDataCache` is incorrectly used with
