@@ -1,7 +1,7 @@
 name: lru
 description: Cache based on least recently used eviction strategy
   with additional typed data support and weak cache layer. 
-version: 1.0.2
+version: 1.0.3
 homepage: https://github.com/Zekfad/lru_cache
 repository: https://github.com/Zekfad/lru_cache
 issue_tracker: https://github.com/Zekfad/lru_cache/issues
