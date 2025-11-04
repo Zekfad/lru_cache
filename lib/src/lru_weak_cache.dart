@@ -32,7 +32,8 @@ final class LruWeakCache<K, V extends Object> extends LruCache<K, V> {
     'Struct or Union'
   );
 
-  /// Internal weak cache that holds recently removed entries.
+  /// Internal weak cache that holds recently removed entries until they are
+  /// garbage collected.
   final _weakCache = WeakCache<K, V>();
 
   @override
@@ -80,6 +81,9 @@ final class LruWeakCache<K, V extends Object> extends LruCache<K, V> {
 
   @override
   V? remove(Object? key) {
+    // this method can be called by `[]=` operator to remove existing key when
+    // updating, which is ok, since we'd never want some old element suddenly
+    // pop up when we replaced it
     if (super.remove(key) case final value?) {
       return value;
     }

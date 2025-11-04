@@ -1,6 +1,7 @@
 import 'package:lru/lru.dart';
 import 'package:test/test.dart';
 
+
 bool get isDebugMode {
   var isDebug = false;
   assert(isDebug = true, 'always true in debug');
@@ -24,7 +25,6 @@ void expectLength<K, V extends Object>(LruCache<K, V> cache, dynamic matcher) {
 
 void main() {
   group('LruCache', () {
-
     test('should add and retrieve values', () {
       final cache = LruCache<int, String>(2);
       cache[1] = 'one';

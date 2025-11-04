@@ -4,23 +4,36 @@ import 'package:meta/meta.dart';
 
 import 'lru_cache_entry.dart';
 
+
 /// Cache implementation based on least recently used eviction strategy.
 ///
 /// {@template lru_cache_docs}
-/// Elements are stored in [Map] and expected to have a constant (worst-case
-/// linear for bad [Object.hashCode]) access time.
-/// Usage metadata are tracked via [LinkedList].
+/// Elements are stored in a [Map] and expected to have a constant access time
+/// or in worst-case linear access time for particularly bad [Object.hashCode]
+/// implementation for stored elements.
+/// 
+/// Usage metadata is tracked via a [LinkedList].
+/// 
+/// Implements full [Map] interface with efficient [Map.length].
 /// {@endtemplate}
+/// 
+/// Implementation details for subclasses:
+/// 
+/// Replacing already present key will trigger removal of element first and
+/// adding new value afterwards.
+/// 
+/// Adding already present element with the same key will push them to
+/// the beginning of linked list without removing them.
 base class LruCache<K, V extends Object> with MapBase<K, V> {
-  /// Create new LRU cache with [capacity].
+  /// Create new LRU cache with maximum [capacity] of elements.
   ///
   /// {@macro lru_cache_docs}
   LruCache(this.capacity) : assert(capacity >= 0, 'Capacity must not be negative');
 
-  /// Maximum capacity of this cache.
+  /// Maximum count of elements this cache can hold at any given moment.
   final int capacity;
 
-  /// Map used for quick access to cache entries.
+  /// Map used to speed up access to cache entries.
   @protected
   @visibleForTesting
   final cache = <K, LruCacheEntry<K, V>>{};
@@ -30,12 +43,20 @@ base class LruCache<K, V extends Object> with MapBase<K, V> {
   @visibleForTesting
   final list = LinkedList<LruCacheEntry<K, V>>();
 
-  /// Moves entry to top of linked [list].
-  /// If [entry] is already first one this is noop.
-  /// If after [entry] movement there more entries than [capacity]
-  /// old entries are removed until there are less than [capacity] entries.
-  /// Its is assumed that [entry] is linked to this instance [list].
-  /// Subclasses should not pass unrelated to [list] entries.
+  /// Unlinks [entry] form the [list] and re-links it the beginning.
+  /// 
+  /// If [entry] is the beginning of [list] this is no-op.
+  /// 
+  /// If [entry] is not present in the [list] it will be added to the beginning.
+  /// 
+  /// After [entry] relink if there are more entries than [capacity] old entries
+  /// will be removed until there are no more than [capacity] entries.
+  /// 
+  /// It is assumed that [cache] already contains [entry].
+  /// It is assumed that [entry] created only for this cache instance.
+  /// 
+  /// Subclasses MUST NOT pass unrelated entries, otherwise it will can break
+  /// this data structure.
   @protected
   void touchListEntry(LruCacheEntry<K, V> entry) {
     if (entry == list.firstOrNull) {
@@ -50,6 +71,8 @@ base class LruCache<K, V extends Object> with MapBase<K, V> {
     }
   }
 
+  /// Called upon cache overflow as a measure to shrink the cache.
+  /// 
   /// Removes [entry] from linked [list] and [cache] map.
   @protected
   LruCacheEntry<K, V>? evictListEntry(LruCacheEntry<K, V> entry) =>
@@ -70,13 +93,19 @@ base class LruCache<K, V extends Object> with MapBase<K, V> {
   void operator []=(K key, V value) {
     if (cache[key] case final entry?) {
       if (identical(entry.value, value)) {
-        // we're replacing key with the same value, so we need only to relink
-        // entry to the top of list
+        // replacing key with the same value, we only need to move
+        // entry to the beginning of the list
         touchListEntry(entry);
         return;
       }
-      // we're replacing key, so we need first to remove existing entry from
-      // the list
+      // replacing key, we need first to remove existing entry from the list
+      //
+      // using remove instead of evictListEntry because semantically this method
+      // is designed to be the same as
+      //   cache.remove(key);
+      //   cache[key] = value;
+      // This helps to differentiate elements that became obsolete as part of
+      // LRU strategy and elements that were replaced by user manually.
       final removed = remove(key);
       assert(null != removed, 'Remove did not return entry, but key is supposedly present');
       assert(identical(removed, entry.value), 'Removed unrelated entry');

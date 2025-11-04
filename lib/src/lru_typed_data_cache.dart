@@ -11,11 +11,11 @@ import 'lru_cache_entry.dart';
 /// {@macro lru_cache_docs}
 /// 
 /// {@template lru_typed_data_cache_docs}
-/// Additionally this implementation ensures that total size of all stored typed
-/// data elements ate not greater than provided [capacityInBytes].
+/// Additionally this implementation ensures that the total size of all stored
+/// typed data elements are not greater than [capacityInBytes].
 /// {@endtemplate}
 final class LruTypedDataCache<K, V extends TypedData> extends LruCache<K, V> {
-  /// Create new typed data LRU cache with provided elements count [capacity]
+  /// Create new typed data LRU cache with maximum [capacity] of elements 
   /// and [capacityInBytes].
   /// 
   /// {@macro lru_cache_docs}
@@ -28,13 +28,13 @@ final class LruTypedDataCache<K, V extends TypedData> extends LruCache<K, V> {
     assert(capacityInBytes >= 0, 'Capacity in bytes must not be negative'),
     super(capacity);
 
-  /// Maximum possible total length in bytes for this cache.
+  /// Maximum total stored elements length in bytes.
   final int capacityInBytes;
 
-  /// Total length in bytes of stored entries.
+  /// Stored elements total length in bytes.
   int get lengthInBytes => _lengthInBytes;
 
-  /// Total length in bytes of stored entries.
+  /// Stored elements total length in bytes.
   int _lengthInBytes = 0;
 
   @override
@@ -74,7 +74,7 @@ final class LruTypedDataCache<K, V extends TypedData> extends LruCache<K, V> {
         return;
       }
       // clear is faster than removing all linked list entries individually
-      // because removing single entry requires to relink adjacent entries
+      // because removing single entry requires to relink it's adjacent entries
       clear();
     }
 
